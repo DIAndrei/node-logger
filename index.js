@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const request = require('request');
 
 
 function ConsoleEngine() { }
@@ -31,13 +32,36 @@ FileEngine.prototype.error = function (timestamp, message) {
     });
 }
 
+/**
+ * 
+ */
 function HttpEngine() {}
 
-HttpEngine.prototype.write = function (timestamp, message) {}
+HttpEngine.prototype.sendData = function (type, timestamp, message) {
+    var data = JSON.stringify({
+        'type': type,
+        'message': message,
+        'timestamp': timestamp
+    });
 
-HttpEngine.prototype.error = function (timestamp, message) {}
+    request.post('https://jsonplaceholder.typicode.com/posts', {json: true, body: data}, function(err, res, body) {
+        //check res.statusCode
+    });
+}
+
+HttpEngine.prototype.write = function (timestamp, message) {
+    this.sendData('log', timestamp, message);
+}
+
+HttpEngine.prototype.error = function (timestamp, message) {
+    this.sendData('error', timestamp, message);
+}
 
 
+/**
+ * 
+ * @param {*} logEngine 
+ */
 function Logger(logEngine) {
     this.logEngine = logEngine;
 }
@@ -52,12 +76,18 @@ Logger.prototype.error = function (message) {
     this.logEngine.error(date.toString(), message);
 }
 
+
+
+//----------------------------------------------------------------------
+
 var consoleEngine = new ConsoleEngine(),
     consoleLog = new Logger(consoleEngine),
     fileEngine = new FileEngine(),
-    fileLog = new Logger(fileEngine);
+    fileLog = new Logger(fileEngine),
+    httpEngine = new HttpEngine(),
+    httpLog = new Logger(httpEngine);
 
 consoleLog.write('akjdhaskjdhkasjdASDASD');
 consoleLog.error('RSOIRHIHDFKLHDFGJDHFGKHJ');
-
 fileLog.write('teastslaksjdks');
+httpLog.write('teastslaksjdks');

@@ -10,5 +10,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {}
+  "dependencies": {
+    "request": "^2.81.0"
+  }
 }
