@@ -3,31 +3,38 @@
 const fs = require('fs');
 const request = require('request');
 
-
+/**
+ * 
+ */
 function ConsoleEngine() { }
 
-ConsoleEngine.prototype.write = function (timestamp, message) {
-    console.log(timestamp, message);
+
+ConsoleEngine.prototype.write = function (data) {
+    console.log.apply(this, data);
 }
 
-ConsoleEngine.prototype.error = function (timestamp, message) {
-    console.error(timestamp, message);
+
+ConsoleEngine.prototype.error = function (data) {
+    console.error.apply(this, data);
 }
 
+/**
+ * 
+ */
 function FileEngine() { }
 
-FileEngine.prototype.write = function (timestamp, message) {
-    fs.appendFile('./log/logger.log', timestamp + ' ' + message + '\r\n', function (err) {
+FileEngine.prototype.write = function (data) {
+    fs.appendFile('./log/logger.log', data + '\r\n', function (err) {
         if (err) {
-            return console.log(err);
+            return console.error(err);
         }
     });
 }
 
-FileEngine.prototype.error = function (timestamp, message) {
-    fs.appendFile('./log/logger.error', timestamp + ' ' + message + '\r\n', function (err) {
+FileEngine.prototype.error = function (data) {
+    fs.appendFile('./log/logger.error', data + '\r\n', function (err) {
         if (err) {
-            return console.log(err);
+            return console.error(err);
         }
     });
 }
@@ -35,26 +42,28 @@ FileEngine.prototype.error = function (timestamp, message) {
 /**
  * 
  */
-function HttpEngine() {}
+function HttpEngine() { }
 
-HttpEngine.prototype.sendData = function (type, timestamp, message) {
-    var data = JSON.stringify({
-        'type': type,
-        'message': message,
-        'timestamp': timestamp
-    });
-
-    request.post('https://jsonplaceholder.typicode.com/posts', {json: true, body: data}, function(err, res, body) {
-        //check res.statusCode
+HttpEngine.prototype.sendData = function (type, data) {
+    var dataToSend = {
+        "type": type,
+        "message": data
+    };
+    
+    request.post('https://jsonplaceholder.typicode.com/posts', { json: true, body: dataToSend }, function (err, res, body) {
+        if (err) {
+            return console.error('POST failed:', err);
+        }
+        console.log(res.statusCode);
     });
 }
 
-HttpEngine.prototype.write = function (timestamp, message) {
-    this.sendData('log', timestamp, message);
+HttpEngine.prototype.write = function (data) {
+    this.sendData('log', data);
 }
 
-HttpEngine.prototype.error = function (timestamp, message) {
-    this.sendData('error', timestamp, message);
+HttpEngine.prototype.error = function (data) {
+    this.sendData('error', data);
 }
 
 
@@ -66,28 +75,40 @@ function Logger(logEngine) {
     this.logEngine = logEngine;
 }
 
-Logger.prototype.write = function (message) {
-    var date = new Date();
-    this.logEngine.write(date.toString(), message);
+Logger.prototype.write = function () {
+    var date = new Date().toString(),
+        args = Array.prototype.slice.call(arguments);
+
+    args.unshift(date);
+
+    this.logEngine.write(args);
 }
 
-Logger.prototype.error = function (message) {
-    var date = new Date();
-    this.logEngine.error(date.toString(), message);
+Logger.prototype.error = function () {
+    var date = new Date().toString(),
+        args = Array.prototype.slice.call(arguments);
+
+    args.unshift(date);
+
+    this.logEngine.error(args);
 }
-
-
 
 //----------------------------------------------------------------------
 
 var consoleEngine = new ConsoleEngine(),
     consoleLog = new Logger(consoleEngine),
     fileEngine = new FileEngine(),
-    fileLog = new Logger(fileEngine),
-    httpEngine = new HttpEngine(),
+    fileLog = new Logger(fileEngine);
+
+consoleLog.write('akjdhaskjdhkasjdASDASD', 'dsfre4e', 'asdSSSSSLAPSPSPS');
+consoleLog.error('RSOIRHIHDFKLHDFGJDHFGKHJ', '39817lakjsdlkasd!@#', 22);
+fileLog.write('teastslaksjdks', 'alsdijaosidja', 'skjdaka');
+fileLog.error('alksdadklsj', 'DKSLDKFJDLSKFj', 94872);
+
+//setTimeout(function () { consoleLog.write('asdasd', 23); }, 5000);
+
+var httpEngine = new HttpEngine(),
     httpLog = new Logger(httpEngine);
 
-consoleLog.write('akjdhaskjdhkasjdASDASD');
-consoleLog.error('RSOIRHIHDFKLHDFGJDHFGKHJ');
-fileLog.write('teastslaksjdks');
-httpLog.write('teastslaksjdks');
+
+httpLog.write('asdasdasd', 'AKLSDM');
