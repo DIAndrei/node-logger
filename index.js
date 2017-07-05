@@ -1,10 +1,14 @@
 'use strict';
 
+/**
+ * Old method. Everything in just one file. This file is "deprecated".
+ */
+
 const fs = require('fs');
 const request = require('request');
 
 /**
- * 
+ * Constructor for ConsoleEngine. This will be used to write logs and errors to the console.
  */
 function ConsoleEngine() { }
 
@@ -19,7 +23,7 @@ ConsoleEngine.prototype.error = function () {
 }
 
 /**
- * 
+ * Constructor for FileEngine. This will be used to write logs and errors in files.
  */
 function FileEngine() { }
 
@@ -47,7 +51,7 @@ FileEngine.prototype.error = function () {
 
 
 /**
- * 
+ * Constructor for HttpEngine. This will be used to send log and error messages to a remote server.
  */
 function HttpEngine() { }
 
@@ -77,8 +81,8 @@ HttpEngine.prototype.error = function () {
 
 
 /**
- * 
- * @param {*} logEngine 
+ * Constructor for the Logger. You must provide an log engine object as an argument.
+ * @param {Type of an engine to be used} logEngine 
  */
 function Logger(logEngine) {
     this.logEngine = logEngine;
