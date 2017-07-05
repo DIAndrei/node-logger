@@ -44,10 +44,13 @@ FileEngine.prototype.error = function (data) {
  */
 function HttpEngine() { }
 
-HttpEngine.prototype.sendData = function () {
-    var data = JSON.stringify(arguments);
-    
-    request.post('https://jsonplaceholder.typicode.com/posts', { json: true, body: {} }, function (err, res, body) {
+HttpEngine.prototype.sendData = function (type, data) {
+    var dataToSend = {
+        "type": type,
+        "message": data
+    };
+    console.log(dataToSend);
+    request.post('https://jsonplaceholder.typicode.com/posts', { json: true, body: dataToSend }, function (err, res, body) {
         if (err) {
             return console.error('POST failed:', err);
         }
@@ -55,12 +58,12 @@ HttpEngine.prototype.sendData = function () {
     });
 }
 
-HttpEngine.prototype.write = function () {
-    this.sendData('log', arguments);
+HttpEngine.prototype.write = function (data) {
+    this.sendData('log', data);
 }
 
-HttpEngine.prototype.error = function (timestamp, message) {
-    this.sendData('error', timestamp, message);
+HttpEngine.prototype.error = function (data) {
+    this.sendData('error', data);
 }
 
 
@@ -104,8 +107,8 @@ fileLog.error('alksdadklsj', 'DKSLDKFJDLSKFj', 94872);
 
 //setTimeout(function () { consoleLog.write('asdasd', 23); }, 5000);
 
-// var httpEngine = new HttpEngine(),
-//     httpLog = new Logger(httpEngine);
+var httpEngine = new HttpEngine(),
+    httpLog = new Logger(httpEngine);
 
 
-// httpLog.write('asdasdasd', 'AKLSDM');
+httpLog.write('asdasdasd', 'AKLSDM');
