@@ -49,7 +49,7 @@ HttpEngine.prototype.sendData = function (type, data) {
         "type": type,
         "message": data
     };
-    console.log(dataToSend);
+    
     request.post('https://jsonplaceholder.typicode.com/posts', { json: true, body: dataToSend }, function (err, res, body) {
         if (err) {
             return console.error('POST failed:', err);
@@ -78,9 +78,9 @@ function Logger(logEngine) {
 Logger.prototype.write = function () {
     var date = new Date().toString(),
         args = Array.prototype.slice.call(arguments);
-    
+
     args.unshift(date);
-    
+
     this.logEngine.write(args);
 }
 
