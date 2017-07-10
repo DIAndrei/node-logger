@@ -4,8 +4,8 @@
  * Old method. Everything in just one file. This file is "deprecated".
  */
 
-const fs = require('fs');
-const request = require('request');
+const fs = require('fs'),
+    request = require('request');
 
 /**
  * Constructor for ConsoleEngine. This will be used to write logs and errors to the console.
@@ -13,13 +13,13 @@ const request = require('request');
 function ConsoleEngine() { }
 
 
-ConsoleEngine.prototype.write = function () {
-    console.log.apply(console, arguments);
+ConsoleEngine.prototype.write = (...args) => {
+    console.log(args.join(', '));
 }
 
 
-ConsoleEngine.prototype.error = function () {
-    console.error.apply(console, arguments);
+ConsoleEngine.prototype.error = (...args) => {
+    console.error(args.join(', '));
 }
 
 /**
@@ -27,56 +27,47 @@ ConsoleEngine.prototype.error = function () {
  */
 function FileEngine() { }
 
-FileEngine.prototype.write = function () {
-    var args = Array.prototype.slice.call(arguments),
-        message = args.join();
-    
-
-    fs.appendFile('./log/logger.log', message + '\r\n', function (err) {
+FileEngine.prototype.write = (...args) => {
+    fs.appendFile('./log/logger.log', args.join(', ') + '\r\n', (err) => {
         if (err) {
             return console.error(err);
         }
     });
 }
 
-FileEngine.prototype.error = function () {
-    var args = Array.prototype.slice.call(arguments),
-        message = args.join();
-    fs.appendFile('./log/logger.error', message + '\r\n', function (err) {
+FileEngine.prototype.error = (...args) => {
+    fs.appendFile('./log/logger.error', args.join(', ') + '\r\n', (err) => {
         if (err) {
-            return console.error(err);
+            return console.trace(err);
         }
     });
 }
-
 
 /**
  * Constructor for HttpEngine. This will be used to send log and error messages to a remote server.
  */
 function HttpEngine() { }
 
-HttpEngine.prototype.sendData = function (type, data) {
-    var dataToSend = {
+HttpEngine.prototype.sendData = (type, data) => {
+    let dataToSend = {
         'type': type,
         'message': data
     };
-    
-    request.post('https://jsonplaceholder.typicode.com/posts', { json: true, body: dataToSend }, function (err, res, body) {
+
+    request.post('https://jsonplaceholder.typicode.com/posts', { json: true, body: dataToSend }, (err, res, body) => {
         if (err) {
-            return console.error('POST failed:', err);
+            return console.trace('POST failed:', err);
         }
         console.log(res.statusCode);
     });
 }
 
-HttpEngine.prototype.write = function () {
-    var args = Array.prototype.slice.call(arguments);
-    this.sendData.apply(this, ['log', args]);
+HttpEngine.prototype.write = (...args) => {
+    HttpEngine.prototype.sendData('log', args);
 }
 
-HttpEngine.prototype.error = function () {
-    var args = Array.prototype.slice.call(arguments);
-    this.sendData.apply(this, ['error', args]);
+HttpEngine.prototype.error = (...args) => {
+    HttpEngine.prototype.sendData('error', args); 
 }
 
 
@@ -88,18 +79,16 @@ function Logger(logEngine) {
     this.logEngine = logEngine;
 }
 
-Logger.prototype.write = function () {
-    var date = new Date().toString(),
-        args = Array.prototype.slice.call(arguments);
+Logger.prototype.write = function (...args) {
+    let date = new Date().toString();
 
     args.unshift(date);
 
     this.logEngine.write.apply(this.logEngine, args);
 }
 
-Logger.prototype.error = function () {
-    var date = new Date().toString(),
-        args = Array.prototype.slice.call(arguments);
+Logger.prototype.error = function (...args) {
+    let date = new Date().toString();
 
     args.unshift(date);
 
@@ -108,7 +97,7 @@ Logger.prototype.error = function () {
 
 //----------------------------------------------------------------------
 
-var consoleEngine = new ConsoleEngine(),
+let consoleEngine = new ConsoleEngine(),
     consoleLog = new Logger(consoleEngine),
     fileEngine = new FileEngine(),
     fileLog = new Logger(fileEngine);
@@ -118,8 +107,8 @@ consoleLog.error('RSOIRHIHDFKLHDFGJDHFGKHJ', '39817lakjsdlkasd!@#', 22);
 fileLog.write('teastslaksjdks', 'alsdijaosidja', 'skjdaka');
 fileLog.error('alksdadklsj', 'DKSLDKFJDLSKFj', 94872);
 
-var httpEngine = new HttpEngine(),
-    httpLog = new Logger(httpEngine);
+// let httpEngine = new HttpEngine(),
+//     httpLog = new Logger(httpEngine);
 
 
-httpLog.write('asdasdasd', 'AKLSDM');
+// httpLog.write('asdasdasd', 'AKLSDM');
