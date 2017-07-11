@@ -27,20 +27,33 @@ ConsoleEngine.prototype.error = (...args) => {
  */
 function FileEngine() { }
 
-FileEngine.prototype.write = (...args) => {
-    fs.appendFile('./log/logger.log', args.join(', ') + '\r\n', (err) => {
-        if (err) {
-            return console.error(err);
-        }
+FileEngine.prototype.writeData = (filePath, data) => {
+    return new Promise((resolve, reject) => {
+        fs.appendFile(filePath, data, (err) => {
+            if (err)
+                return reject(err);
+
+            resolve();
+        });
     });
 }
 
+FileEngine.prototype.write = (...args) => {
+    let content = args.join(', ') + '\r\n';
+    FileEngine.prototype.writeData('./log/logger.log', content)
+        .then(() => { })
+        .catch((error) => {
+            console.trace(error);
+        });
+}
+
 FileEngine.prototype.error = (...args) => {
-    fs.appendFile('./log/logger.error', args.join(', ') + '\r\n', (err) => {
-        if (err) {
-            return console.trace(err);
-        }
-    });
+    let content = args.join(', ') + '\r\n';
+    FileEngine.prototype.writeData('./log/logger.error', content)
+        .then(() => { })
+        .catch((error) => {
+            console.trace(error);
+        });
 }
 
 /**
@@ -53,21 +66,34 @@ HttpEngine.prototype.sendData = (type, data) => {
         'type': type,
         'message': data
     };
-
-    request.post('https://jsonplaceholder.typicode.com/posts', { json: true, body: dataToSend }, (err, res, body) => {
-        if (err) {
-            return console.trace('POST failed:', err);
-        }
-        console.log(res.statusCode);
+    return new Promise((resolve, reject) => {
+        request.post('https://jsonplaceholder.typicode.com/posts', { json: true, body: dataToSend }, (err, res, body) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(res.statusCode);
+        });
     });
 }
 
 HttpEngine.prototype.write = (...args) => {
-    HttpEngine.prototype.sendData('log', args);
+    HttpEngine.prototype.sendData('log', args)
+        .then((status) => { 
+            console.log(status);
+        })
+        .catch((error) => {
+            console.trace(error);
+        });
 }
 
 HttpEngine.prototype.error = (...args) => {
-    HttpEngine.prototype.sendData('error', args); 
+    HttpEngine.prototype.sendData('error', args)
+        .then((status) => { 
+            console.log(status);
+        })
+        .catch((error) => {
+            console.trace(error);
+        });
 }
 
 
@@ -97,6 +123,10 @@ Logger.prototype.error = function (...args) {
 
 //----------------------------------------------------------------------
 
+/**
+ * Testing the engines
+ */
+
 let consoleEngine = new ConsoleEngine(),
     consoleLog = new Logger(consoleEngine),
     fileEngine = new FileEngine(),
@@ -107,8 +137,8 @@ consoleLog.error('RSOIRHIHDFKLHDFGJDHFGKHJ', '39817lakjsdlkasd!@#', 22);
 fileLog.write('teastslaksjdks', 'alsdijaosidja', 'skjdaka');
 fileLog.error('alksdadklsj', 'DKSLDKFJDLSKFj', 94872);
 
-// let httpEngine = new HttpEngine(),
-//     httpLog = new Logger(httpEngine);
+let httpEngine = new HttpEngine(),
+    httpLog = new Logger(httpEngine);
 
 
-// httpLog.write('asdasdasd', 'AKLSDM');
+httpLog.write('asdasdasd', 'AKLSDM');
