@@ -6,7 +6,7 @@ const Logger = require('./lib/Logger.js');
 var consoleLog = new Logger(consoleEngine),
     fileLog = new Logger(fileEngine);
 
-consoleLog.write('akjdhaskjdhkasjdASDASD', 'dsfre4e', 'asdSSSSSLAPSPSPS');
+consoleLog.write('akjdhaskjdhkasjdASDASD', 'dsasda', 'asdSSSSSLAPSPSPS');
 consoleLog.error('RSOIRHIHDFKLHDFGJDHFGKHJ', '39817lakjsdlkasd!@#', 22);
 
 fileLog.write('teastslaksjdks', 'alsdijaosidja', 'skjdaka');
