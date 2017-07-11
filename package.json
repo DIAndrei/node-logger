@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Andrei Diaconu",
   "license": "ISC",
   "dependencies": {
     "request": "^2.81.0"
